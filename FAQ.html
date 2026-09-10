@@ -4,171 +4,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>업무 FAQ 검색</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #0056b3;
-            --border-color: #ddd;
-            --bg-color: #f8f9fa;
-        }
         body {
-            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #222;
-            margin-bottom: 25px;
-        }
-        .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .search-box input {
-            flex: 1;
-            padding: 12px;
-            font-size: 16px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-        }
-        .search-box button {
-            padding: 12px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 6px;
-            background-color: var(--primary-color);
-            color: white;
-            transition: background-color 0.2s;
-        }
-        .search-box button:hover {
-            background-color: #004494;
-        }
-        .search-box button.btn-reset {
-            background-color: #6c757d;
-        }
-        .search-box button.btn-reset:hover {
-            background-color: #5a6268;
-        }
-        .categories {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .category-btn {
-            padding: 8px 16px;
-            border: 1px solid var(--primary-color);
-            background-color: white;
-            color: var(--primary-color);
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .category-btn.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        .result-count {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .faq-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .faq-item {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            background-color: var(--bg-color);
-        }
-        .faq-category {
-            display: inline-block;
-            font-size: 12px;
-            font-weight: bold;
-            background: #e9ecef;
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            color: #495057;
-        }
-        .faq-question {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #111;
-        }
-        .faq-question::before {
-            content: "Q. ";
-            color: var(--primary-color);
-        }
-        .faq-answer {
-            font-size: 15px;
-            line-height: 1.5;
-            color: #444;
-        }
-        .faq-answer::before {
-            content: "A. ";
-            color: #d93025;
-            font-weight: bold;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
         }
         .highlight {
-            background-color: #ffeb3b;
-            font-weight: bold;
-            border-radius: 2px;
-        }
-        .no-results {
-            text-align: center;
-            padding: 40px 20px;
-            background-color: #fff3f3;
-            border: 1px solid #ffcdd2;
-            border-radius: 8px;
-            color: #d32f2f;
-            line-height: 1.6;
-            font-size: 16px;
+            background-color: #fef08a;
+            color: #854d0e;
+            font-weight: 600;
+            padding: 0.1rem 0.25rem;
+            border-radius: 0.25rem;
         }
     </style>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-800 min-h-screen p-4 sm:p-6 md:p-8">
 
-<div class="container">
-    <h1>업무 FAQ 검색</h1>
-
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="질문이나 키워드를 입력하세요." onkeyup="if(event.key==='Enter') executeSearch()">
-        <button onclick="executeSearch()">검색</button>
-        <button class="btn-reset" onclick="resetSearch()">전체보기</button>
-    </div>
-
-    <div class="categories" id="categoryContainer">
-        <!-- 카테고리 버튼이 JavaScript로 렌더링됩니다 -->
-    </div>
-
-    <div class="result-count" id="resultCount"></div>
-
-    <div class="faq-list" id="faqList">
-        <!-- 검색 결과가 여기에 렌더링됩니다 -->
-    </div>
+<div class="max-w-3xl mx-auto mb-4">
+    <!-- 상위 폴더/이전 디렉토리 이동 네비게이션 바 -->
+    <nav class="flex items-center justify-between bg-white px-4 py-3 rounded-xl shadow-sm border border-slate-200">
+        <a href="../" id="backLink" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-blue-600 transition-colors duration-150 group">
+            <span class="p-1.5 rounded-lg bg-slate-100 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </span>
+            <span>MG금융계산기</span>
+        </a>
+        <span class="text-xs text-slate-600 font-medium hidden sm:inline-block">사내 업무지원 포털</span>
+    </nav>
 </div>
 
+<main class="max-w-3xl mx-auto bg-white rounded-2xl shadow-md border border-slate-200/80 p-6 sm:p-8">
+    <header class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600 mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">업무 FAQ 검색</h1>
+        <p class="text-slate-600 text-sm mt-1">궁금한 사내 업무 질문을 검색하거나 카테고리별로 찾아보세요.</p>
+    </header>
+
+    <!-- 검색창 컨트롤 -->
+    <section class="mb-6" aria-label="FAQ 검색">
+        <div class="flex flex-col sm:flex-row gap-2.5">
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="질문이나 키워드를 입력하세요." 
+                    class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+            </div>
+            <div class="flex gap-2">
+                <button 
+                    id="searchBtn" 
+                    type="button" 
+                    class="flex-1 sm:flex-none px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition duration-150 shadow-sm shadow-blue-500/20 active:scale-[0.98]">
+                    검색
+                </button>
+                <button 
+                    id="resetBtn" 
+                    type="button" 
+                    class="flex-1 sm:flex-none px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition duration-150 active:scale-[0.98]">
+                    전체보기
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-6" aria-label="카테고리 선택">
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none" id="categoryContainer">
+            <!-- 자바스크립트로 카테고리 칩 렌더링 -->
+        </div>
+    </section>
+
+    <!-- 검색 결과 건수 표시 -->
+    <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+        <div id="resultCount" class="text-sm font-medium text-slate-600">검색 결과: 총 0건</div>
+    </div>
+
+    <!-- FAQ 목록 영역 -->
+    <section id="faqList" class="space-y-4" aria-label="FAQ 목록">
+        <!-- 자바스크립트로 결과 목록 렌더링 -->
+    </section>
+</main>
+
 <script>
-    // FAQ초안_합성자료.json 데이터 (임의의 답변 생성 방지를 위해 해당 데이터만 사용)
+    // FAQ초안_합성자료.json 데이터 (임의 생성 방지를 위해 엄격히 고정)
     const faqData = [
       {
         "category": "교육",
@@ -201,89 +134,124 @@
     let currentCategory = "전체";
     let currentKeyword = "";
 
-    // 초기 설정
-    function init() {
-        renderCategories();
-        renderResults();
-    }
+    // DOM 요소 캐싱
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const categoryContainer = document.getElementById('categoryContainer');
+    const resultCount = document.getElementById('resultCount');
+    const faqList = document.getElementById('faqList');
 
-    // 카테고리 버튼 렌더링
+    // 카테고리 버튼 생성
     function renderCategories() {
-        const container = document.getElementById('categoryContainer');
-        container.innerHTML = categories.map(cat => `
-            <button class="category-btn ${cat === currentCategory ? 'active' : ''}" 
-                    onclick="setCategory('${cat}')">${cat}</button>
-        `).join('');
+        categoryContainer.innerHTML = categories.map(cat => {
+            const isActive = cat === currentCategory;
+            const activeClasses = isActive 
+                ? "bg-blue-600 text-white shadow-sm shadow-blue-600/30" 
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800";
+            return `
+                <button 
+                    type="button"
+                    data-cat="${cat}"
+                    class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeClasses}">
+                    ${cat}
+                </button>
+            `;
+        }).join('');
+
+        // 이벤트 위임
+        categoryContainer.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentCategory = btn.getAttribute('data-cat');
+                renderCategories();
+                renderResults();
+            });
+        });
     }
 
-    // 카테고리 변경
-    function setCategory(category) {
-        currentCategory = category;
-        renderCategories(); // 활성화 버튼 CSS 업데이트
-        renderResults();    // 결과 다시 렌더링
+    // 키워드 하이라이트 함수 (HTML 특수문자 대응 및 이스케이프)
+    function highlightText(text, keyword) {
+        if (!keyword) return text;
+        const safeKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${safeKeyword})`, 'gi');
+        return text.replace(regex, '<mark class="highlight">$1</mark>');
+    }
+
+    // 결과 렌더링 함수
+    function renderResults() {
+        // 검색 필터링 로직
+        const filtered = faqData.filter(item => {
+            const matchesCat = currentCategory === "전체" || item.category === currentCategory;
+            const matchesKeyword = item.question.includes(currentKeyword) || item.answer_seed.includes(currentKeyword);
+            return matchesCat && matchesKeyword;
+        });
+
+        // 건수 표시
+        resultCount.textContent = `검색 결과: 총 ${filtered.length}건`;
+
+        // 결과 없음 상태 (엄격한 정적 안내문구 출력 - AI 허위 생성 방지)
+        if (filtered.length === 0) {
+            faqList.innerHTML = `
+                <div class="p-8 text-center bg-slate-50 border border-dashed border-slate-300 rounded-xl">
+                    <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-slate-200 text-slate-500 mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <p class="text-slate-800 font-semibold mb-1">등록된 FAQ에서 답변을 찾을 수 없습니다.</p>
+                    <p class="text-slate-500 text-sm">관련 담당부서 또는 공식 안내자료를 확인해 주세요.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // 결과 목록 출력
+        faqList.innerHTML = filtered.map(item => `
+            <article class="p-5 bg-slate-50 hover:bg-slate-50/80 border border-slate-200 rounded-xl transition-all duration-150">
+                <div class="mb-2">
+                    <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded-md bg-blue-100 text-blue-800">
+                        ${item.category}
+                    </span>
+                </div>
+                <h2 class="text-base sm:text-lg font-bold text-slate-900 mb-2 flex items-start gap-1.5">
+                    <span class="text-blue-600 font-extrabold select-none">Q.</span>
+                    <span>${highlightText(item.question, currentKeyword)}</span>
+                </h2>
+                <div class="text-sm sm:text-base text-slate-700 leading-relaxed flex items-start gap-1.5 bg-white p-3.5 rounded-lg border border-slate-200/70">
+                    <span class="text-rose-500 font-bold select-none">A.</span>
+                    <div>${highlightText(item.answer_seed, currentKeyword)}</div>
+                </div>
+            </article>
+        `).join('');
     }
 
     // 검색 실행
     function executeSearch() {
-        currentKeyword = document.getElementById('searchInput').value.trim();
+        currentKeyword = searchInput.value.trim();
         renderResults();
     }
 
-    // 전체보기 (검색 초기화)
+    // 전체보기 (초기화)
     function resetSearch() {
-        document.getElementById('searchInput').value = "";
+        searchInput.value = "";
         currentKeyword = "";
         currentCategory = "전체";
         renderCategories();
         renderResults();
     }
 
-    // 텍스트 하이라이트 처리 함수
-    function highlightText(text, keyword) {
-        if (!keyword) return text;
-        // 정규식 특수문자 이스케이프 처리
-        const safeKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex = new RegExp(`(${safeKeyword})`, 'gi');
-        return text.replace(regex, '<span class="highlight">$1</span>');
-    }
-
-    // 결과 렌더링 로직
-    function renderResults() {
-        const listContainer = document.getElementById('faqList');
-        const countContainer = document.getElementById('resultCount');
-        
-        // 1. 데이터 필터링
-        const filteredData = faqData.filter(item => {
-            const matchCategory = currentCategory === "전체" || item.category === currentCategory;
-            const matchKeyword = item.question.includes(currentKeyword) || item.answer_seed.includes(currentKeyword);
-            return matchCategory && matchKeyword;
-        });
-
-        // 2. 검색 건수 표시
-        countContainer.innerText = `검색 결과: 총 ${filteredData.length}건`;
-
-        // 3. 결과 HTML 생성
-        if (filteredData.length === 0) {
-            // 2단계 개선사항: 검색 결과가 없을 때 엄격한 고정 메시지 출력
-            listContainer.innerHTML = `
-                <div class="no-results">
-                    등록된 FAQ에서 답변을 찾을 수 없습니다.<br>
-                    관련 담당부서 또는 공식 안내자료를 확인해 주세요.
-                </div>
-            `;
-        } else {
-            listContainer.innerHTML = filteredData.map(item => `
-                <div class="faq-item">
-                    <div class="faq-category">${item.category}</div>
-                    <div class="faq-question">${highlightText(item.question, currentKeyword)}</div>
-                    <div class="faq-answer">${highlightText(item.answer_seed, currentKeyword)}</div>
-                </div>
-            `).join('');
+    // 이벤트 리스너 바인딩
+    searchBtn.addEventListener('click', executeSearch);
+    resetBtn.addEventListener('click', resetSearch);
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            executeSearch();
         }
-    }
+    });
 
-    // 앱 실행
-    init();
+    // 앱 초기화
+    renderCategories();
+    renderResults();
 </script>
 
 </body>
