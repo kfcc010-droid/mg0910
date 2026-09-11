@@ -43,7 +43,7 @@
       <form class="connection-form" id="connectionForm">
         <div class="field"><label for="apiUrl">Project URL</label><input id="apiUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://your-project.supabase.co" required></div>
         <div class="field"><label for="apiKey">Publishable key</label><input id="apiKey" type="password" autocomplete="off" placeholder="sb_publishable_..." required></div>
-        <button class="connect-btn" id="connectBtn" type="submit">연결 및 조회</button><button class="clear-btn" id="clearBtn" type="button">설정 삭제</button>
+        <button class="connect-btn" id="connectBtn" type="submit">새로고침</button><button class="clear-btn" id="clearBtn" type="button">기본값 복원</button>
       </form>
       <p class="connection-help">입력값은 이 브라우저에만 저장됩니다. <strong>sb_secret 또는 service_role 키는 입력하지 마세요.</strong> 조회 대상은 public.deposit_rate_comparison_20260910으로 고정됩니다.</p>
     </section>
@@ -71,7 +71,10 @@
       {institution:"OK저축은행",sector:"저축은행",product:"OK e-안심정기예금(변동금리)",base:3.91,max:3.91,condition:"별도 우대조건 없음; 비대면 전용; 매 1년 금리 변경·정상해지 가능",date:"2026-09-10"}
     ];
     let rows=[...fallbackRows];
-    const TABLE="deposit_rate_comparison_20260910", fmt=n=>`${n.toFixed(2)}%`, avg=a=>a.reduce((s,n)=>s+n,0)/a.length;
+    const TABLE="deposit_rate_comparison_20260910";
+    const DEFAULT_URL="https://tljavwvrdiamalwqegbe.supabase.co";
+    const DEFAULT_KEY="sb_publishable_llsQvgglYrjtCLNT7egQ4A_PJxzN8LL";
+    const fmt=n=>`${n.toFixed(2)}%`, avg=a=>a.reduce((s,n)=>s+n,0)/a.length;
     let active="전체";
     document.getElementById("asOf").textContent=rows[0].date.replaceAll("-",".");
     const filters=document.getElementById("filters");
@@ -89,13 +92,13 @@
     }
     function renderSectorChart(){const grouped=Object.entries(rows.reduce((a,r)=>{(a[r.sector]??=[]).push(r.max);return a},{})).map(([s,v])=>[s,avg(v)]).sort((a,b)=>b[1]-a[1]);document.getElementById("sectorChart").innerHTML=grouped.map(([s,v])=>`<div class="sector-row"><span>${s}</span><div class="sector-track"><div class="sector-fill" style="width:${v/4.2*100}%"></div></div><span class="sector-value">${fmt(v)}</span></div>`).join("")}
     const apiUrl=document.getElementById("apiUrl"),apiKey=document.getElementById("apiKey"),form=document.getElementById("connectionForm"),connectBtn=document.getElementById("connectBtn"),statusEl=document.getElementById("connectionStatus"),statusDot=document.getElementById("statusDot");
-    apiUrl.value=localStorage.getItem("depositDashboard.supabaseUrl")||"";apiKey.value=localStorage.getItem("depositDashboard.publishableKey")||"";
+    apiUrl.value=localStorage.getItem("depositDashboard.supabaseUrl")||DEFAULT_URL;apiKey.value=localStorage.getItem("depositDashboard.publishableKey")||DEFAULT_KEY;
     function setStatus(message,type=""){statusEl.textContent=message;statusDot.className="status-dot"+(type?` ${type}`:"")}
     function rejectSecret(key){if(key.startsWith("sb_secret_"))return true;if(key.split(".").length===3){try{return JSON.parse(atob(key.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))).role==="service_role"}catch{return false}}return false}
     async function connect(){const url=apiUrl.value.trim().replace(/\/$/,""),key=apiKey.value.trim();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url))throw new Error("올바른 Supabase Project URL을 입력하세요.");if(rejectSecret(key))throw new Error("비밀 키는 사용할 수 없습니다. publishable key를 입력하세요.");if(!key.startsWith("sb_publishable_")&&key.split(".").length!==3)throw new Error("올바른 publishable key를 입력하세요.");connectBtn.disabled=true;setStatus("연결 확인 중…");try{const endpoint=`${url}/rest/v1/${TABLE}?select=institution_name,sector_classification,product_name,base_rate,max_preferred_rate,preference_conditions,as_of_date&order=id.asc`;const response=await fetch(endpoint,{headers:{apikey:key}});if(!response.ok){let detail="";try{detail=(await response.json()).message||""}catch{}throw new Error(response.status===401||response.status===403?"접근이 거부됐습니다. 키와 RLS 조회 정책을 확인하세요.":detail||`조회 실패 (${response.status})`)}const data=await response.json();if(!Array.isArray(data)||!data.length)throw new Error("조회된 데이터가 없습니다.");rows=data.map(r=>({institution:r.institution_name,sector:r.sector_classification,product:r.product_name,base:Number(r.base_rate),max:Number(r.max_preferred_rate),condition:r.preference_conditions,date:r.as_of_date}));localStorage.setItem("depositDashboard.supabaseUrl",url);localStorage.setItem("depositDashboard.publishableKey",key);document.getElementById("asOf").textContent=rows[0].date.replaceAll("-",".");active="전체";renderFilters();renderSectorChart();render();setStatus(`연결됨 · ${rows.length}건 조회`,"ok")}finally{connectBtn.disabled=false}}
     form.addEventListener("submit",async e=>{e.preventDefault();try{await connect()}catch(err){setStatus(err.message,"fail")}});
-    document.getElementById("clearBtn").addEventListener("click",()=>{localStorage.removeItem("depositDashboard.supabaseUrl");localStorage.removeItem("depositDashboard.publishableKey");apiUrl.value="";apiKey.value="";rows=[...fallbackRows];active="전체";document.getElementById("asOf").textContent=rows[0].date.replaceAll("-",".");renderFilters();renderSectorChart();render();setStatus("설정 삭제됨 · 내장 데이터 표시 중")});
-    renderFilters();renderSectorChart();render();
+    document.getElementById("clearBtn").addEventListener("click",async()=>{localStorage.removeItem("depositDashboard.supabaseUrl");localStorage.removeItem("depositDashboard.publishableKey");apiUrl.value=DEFAULT_URL;apiKey.value=DEFAULT_KEY;try{await connect()}catch(err){setStatus(err.message,"fail")}});
+    renderFilters();renderSectorChart();render();connect().catch(err=>setStatus(err.message,"fail"));
   </script>
 </body>
 </html>
